@@ -17,9 +17,13 @@ date_default_timezone_set('America/Chicago');
 
 $cfg = new Spot_Config();
 // MySQL
-$adapter = $cfg->addConnection('test_mysql', 'mysql://test:password@localhost/test');
+//$adapter = $cfg->addConnection('test_mysql', 'mysql://test:password@localhost/test');
 // MongoDB with adapter options
-$adapter = $cfg->addConnection('test_mongodb', 'mongodb://localhost:28017', array(
+$adapter = $cfg->addConnection('test_mongodb', array(
+	'adapter' => 'mongodb',
+	'host' => '',
+	'database' => 'test'
+	), array(
 	'cursor' => array(
 		'timeout' => 10
 	),

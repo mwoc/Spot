@@ -31,46 +31,17 @@ class Spot_Adapter_MongoDB extends Spot_Adapter_Abstract implements Spot_Adapter
 			} else {
 				// Establish connection
 				try {
-					$this->_connection = new Mongo($this->_dsn, $this->_options);
+					$dsn = $this->_dsn;
+					if(is_array($this->_dsn)) {
+						$dsn = $this->_dsn['adapter'] . "://" . (!empty($this->_dsn['host']) ? $this->_dsn['host'] : "localhost") . (!empty($this->_dsn['port']) ? ":" . $this->_dsn['port'] : "");
+					}
+					$this->_connection = new Mongo($dsn, $this->_options);
 				} catch(Exception $e) {
 					throw new Spot_Exception($e->getMessage());
 				}
 			}
 		}
 		return $this->_connection;
-	}
-	
-	
-	/**
-	 * Get database format
-	 *
-	 * @return string Date format for PHP's date() function
-	 */
-	public function dateFormat()
-	{
-		return $this->format_date;
-	}
-	
-	
-	/**
-	 * Get database time format
-	 *
-	 * @return string Time format for PHP's date() function
-	 */
-	public function timeFormat()
-	{
-		return $this->format_time;
-	}
-	
-	
-	/**
-	 * Get database format
-	 *
-	 * @return string DateTime format for PHP's date() function
-	 */
-	public function dateTimeFormat()
-	{
-		return $this->format_datetime;
 	}
 	
 	

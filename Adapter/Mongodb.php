@@ -258,9 +258,15 @@ class Spot_Adapter_MongoDB extends Spot_Adapter_Abstract implements Spot_Adapter
 				$col = $colData[0];
 
                 // Automatic conversion for Mongo's '_id' field from mappers with 'id' set
-                if('id' == $col && isset($this->options['mapper']['translate_id']) && true === $this->options['mapper']['translate_id']) {
+                if('id' == $col && isset($this->_options['mapper']['translate_id']) && true === $this->_options['mapper']['translate_id']) {
                     $col = '_id';
                 }
+				
+				// Auto-convert to MongoId object where appropriate
+				// Will be a 24-character hexidecimal string
+				if('_id' == $col && is_string($value) && 24 == strlen($value)) {
+					$value = new MongoId($value);
+				}
 
 				// @todo MERGE these array values on the column so they don't overwrite each other
 				switch($operator) {

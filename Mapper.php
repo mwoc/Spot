@@ -308,8 +308,9 @@ class Mapper
      */
     public function create($entityClass, array $data)
     {
-        return $this->get($entityClass)
-            ->data($data);
+        $entity =  $this->get($entityClass);
+        $entity->data($data);
+        return $entity;
     }
     
     

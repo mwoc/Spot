@@ -148,6 +148,13 @@ abstract class Entity
         return $this->_dataModified;
     }
 
+    /**
+     * Gets data that has changed value since object construct
+     */
+	public function dataDiff()
+	{		
+		return array_diff_assoc(array_merge($this->_data,$this->_dataModified),$this->_data);
+	}
 
     /**
      * Alias of self::data()

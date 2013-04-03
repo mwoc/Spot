@@ -1,7 +1,6 @@
 <?php
 /**
  * @package Spot
- * @link http://spot.os.ly
  */
 class Test_CRUD extends PHPUnit_Framework_TestCase
 {
@@ -24,7 +23,8 @@ class Test_CRUD extends PHPUnit_Framework_TestCase
         $post = $mapper->get('Entity_Post');
         $post->title = "Test Post";
         $post->body = "<p>This is a really awesome super-duper post.</p><p>It's really quite lovely.</p>";
-        $post->date_created = $mapper->connection('Entity_Post')->date();
+        $post->author_id = 1;
+        $post->date_created = new \DateTime();
         $result = $mapper->insert($post); // returns an id
 
         $this->assertTrue($result !== false);
@@ -36,6 +36,7 @@ class Test_CRUD extends PHPUnit_Framework_TestCase
         $post = $mapper->get('Entity_Post');
         $post->title = "Test Post With Empty Values";
         $post->body = "<p>Test post here.</p>";
+        $post->author_id = 1;
         $post->date_created = null;
         try {
             $result = $mapper->insert($post); // returns an id
@@ -54,6 +55,27 @@ class Test_CRUD extends PHPUnit_Framework_TestCase
         $this->assertTrue($post instanceof Entity_Post);
     }
 
+    public function testInsertThenSelectReturnsProperTypes()
+    {
+        // Insert Post into database
+        $mapper = test_spot_mapper();
+        $post = $mapper->get('Entity_Post');
+        $post->title = "Types Test";
+        $post->body = "<p>This is a really awesome super-duper post.</p><p>It's really quite lovely.</p>";
+        $post->status = 1;
+        $post->date_created = new \DateTime();
+        $post->author_id = 1;
+        $result = $mapper->insert($post); // returns an id
+
+        // Read Post from database
+        $post = $mapper->get('Entity_Post', $result);
+
+        // Strict equality
+        $this->assertSame(1, $post->status);
+        $postData = $post->data();
+        $this->assertSame(1, $postData['status']);
+    }
+
     public function testSampleNewsUpdate()
     {
         $mapper = test_spot_mapper();
@@ -62,11 +84,7 @@ class Test_CRUD extends PHPUnit_Framework_TestCase
 
         $post->title = "Test Post Modified";
         $result = $mapper->update($post); // returns boolean
-        
-        // TESTING
-        //var_dump(\Spot\Log::lastQuery());
-        //exit();
-        
+
         $postu = $mapper->first('Entity_Post', array('title' => "Test Post Modified"));
         $this->assertTrue($postu instanceof Entity_Post);
     }
@@ -77,6 +95,24 @@ class Test_CRUD extends PHPUnit_Framework_TestCase
         $post = $mapper->first('Entity_Post', array('title' => "Test Post Modified"));
         $result = $mapper->delete($post);
 
-        $this->assertTrue($result);
+        $this->assertTrue((boolean) $result);
+    }
+
+    public function testMultipleConditionDelete()
+    {
+        $mapper = test_spot_mapper();
+        for( $i = 1; $i <= 10; $i++ ) {
+            $mapper->insert('Entity_Post', array(
+                'title' => ($i % 2 ? 'odd' : 'even' ). '_title',
+                'body' => '<p>' . $i  . '_body</p>',
+                'status' => $i ,
+                'date_created' => $mapper->connection('Entity_Post')->dateTime()
+            ));
+        }
+
+        $result = $mapper->delete('Entity_Post', array('status !=' => array(3,4,5), 'title' => 'odd_title'));
+        $this->assertTrue((boolean) $result);
+        $this->assertEquals(3, $result);
+
     }
 }
